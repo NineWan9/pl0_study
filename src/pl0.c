@@ -14,96 +14,134 @@ void error(long n){
     err++;
 }
 
+//从输入文件中获取下一个字符
 void getch() {
+	//cc与ll不相等是什么情况？？？
     if(cc==ll){
-	if(feof(infile)){
-	    printf("************************************\n");
-	    printf("      program incomplete\n");
-	    printf("************************************\n");
-	    exit(1);
-	}
-	ll=0; cc=0;
-	printf("%5d ", cx);
-	while((!feof(infile))&&((ch=getc(infile))!='\n')){
-	    printf("%c",ch);
-	    ll=ll+1; line[ll]=ch;
-	}
-	printf("\n");
-	ll=ll+1; line[ll]=' ';
+		//feof是检测流上的文件结束符，如果文件结束，则返回非0值，否则返回0
+		//（即，文件结束：返回非0值，文件未结束，返回0值）
+		//判断文件是否结束
+		if(feof(infile))
+		{
+			// the end of file 
+			printf("************************************\n");
+			printf("      program incomplete\n");
+			printf("************************************\n");
+			exit(1);
+		}
+		//重新初始化ll和cc，为获取当前代码行做准备
+		ll=0; cc=0;
+		printf("%5d ", cx);
+		//获取一行代码 - 调用一次getchar，即可获取一整行代码（即一个代码语句）
+		while((!feof(infile))&&((ch=getc(infile))!='\n'))
+		{
+			printf("%c",ch);
+			ll=ll+1; line[ll]=ch;
+		}
+		printf("\n");
+		ll=ll+1; line[ll]=' ';
     }
+	//只有当cc!=ll的时候，cc=cc+1才有意义，否则cc在循环中会被重置为0，这里永远是1，没有意义
+	//如果一行代码成功获取，ch就是line中的第一个元素
     cc=cc+1; ch=line[cc];
 }
 
+//get symbol - 我猜这是词法分析
 void getsym(){
     long i,j,k;
 
-    while(ch==' '||ch=='\t'){
-	getch();
+    while(ch==' '||ch=='\t')
+	{
+		getch();
     }
-    if(isalpha(ch)){ 	// identified or reserved
-	k=0;
-	do{
-	    if(k<al){
-		a[k]=ch; k=k+1;
-	    }
-	    getch();
-	}while(isalpha(ch)||isdigit(ch));
-	if(k>=kk){
-	    kk=k;
-	}else{
-	    do{
-		kk=kk-1; a[kk]=' ';
-	    }while(k<kk);
-	}
-	strcpy(id,a); i=0; j=norw-1;
-	do{
-	    k=(i+j)/2;
-	    if(strcmp(id,word[k])<=0){
-		j=k-1;
-	    }
-	    if(strcmp(id,word[k])>=0){
-		i=k+1;
-	    }
-	}while(i<=j);
-	if(i-1>j){
-	    sym=wsym[k];
-	}else{
-	    sym=ident;
-	}
-    }else if(isdigit(ch)){ // number
-	k=0; num=0; sym=number;
-	do{
-	    num=num*10+(ch-'0');
-	    k=k+1; getch();
-	}while(isdigit(ch));
-	if(k>nmax){
-	    error(31);
-	}
-    }else if(ch==':'){
-	getch();
-	if(ch=='='){
-	    sym=becomes; getch();
-	}else{
-	    sym=nul;
-	}
-    }else if(ch=='<'){
-	getch();
-	if(ch=='='){
-	    sym=leq; getch();
-	}else if(ch=='>'){
-	    sym=neq; getch();
-	}else{
-	    sym=lss;
-	}
-    }else if(ch=='>'){
-	getch();
-	if(ch=='='){
-	    sym=geq; getch();
-	}else{
-	    sym=gtr;
-	}
-    }else{
-	sym=ssym[(unsigned char)ch]; getch();
+	//isalpha判断字符是否为英文字母，若为英文字母，返回非0（小写字母为2，大写字母为1）。若不是字母，返回0。
+    if(isalpha(ch))  // identified or reserved - 由字母开头，说明应该是标识符或者保留字
+	{ 	
+		k=0;
+		do{
+			if(k<al)
+			{
+				a[k]=ch; k=k+1;
+			}
+			getch();
+		}while(isalpha(ch)||isdigit(ch));
+		if(k>=kk)
+		{
+			kk=k;
+		}
+		else
+		{
+			do{
+				kk=kk-1; a[kk]=' ';
+			}while(k<kk);
+		}
+		strcpy(id,a); i=0; j=norw-1;
+		do{
+			k=(i+j)/2;
+			if(strcmp(id,word[k])<=0)
+			{
+				j=k-1;
+			}
+			if(strcmp(id,word[k])>=0)
+			{
+				i=k+1;
+			}
+		}while(i<=j);
+		if(i-1>j)
+		{
+			sym=wsym[k];
+		}
+		else
+		{
+			sym=ident;
+		}
+    }
+	else if (isdigit(ch)) // number
+	{
+		k=0; num=0; sym=number;
+		do
+		{
+			num=num*10+(ch-'0');
+			k=k+1; getch();
+		}while(isdigit(ch));
+		if(k>nmax)
+		{
+			error(31);
+		}
+    }
+	else if(ch==':')
+	{
+		getch();
+		if (ch == '='){
+			sym = becomes; getch();
+		}
+		else{
+			sym = nul;
+		}
+    }
+	else if(ch=='<')
+	{
+		getch();
+		if(ch=='='){
+			sym=leq; getch();
+		}else if(ch=='>'){
+			sym=neq; getch();
+		}else{
+			sym=lss;
+		}
+    }
+	else if(ch=='>')
+	{
+		getch();
+		if(ch=='='){
+			sym=geq; getch();
+		}else{
+			sym=gtr;
+		}
+    }
+	else
+	{
+		sym=ssym[(unsigned char)ch]; getch();
     }
 }
 
@@ -553,9 +591,11 @@ void interpret(){
 }
 
 main(){
+	//声明、初始化全局变量
     long i;
-    for(i=0; i<256; i++){
-	ssym[i]=nul;
+    for(i=0; i<256; i++)
+	{
+		ssym[i]=nul;
     }
     strcpy(word[0],  "begin     ");
     strcpy(word[1],  "call      ");
@@ -601,14 +641,17 @@ main(){
     statbegsys=beginsym|callsym|ifsym|whilesym;
     facbegsys=ident|number|lparen;
 
+	//程序开始，给出提示，读入文件名称，打开文件
     printf("please input source program file name: ");
     scanf("%s",infilename);
     printf("\n");
-    if((infile=fopen(infilename,"r"))==NULL){
-	printf("File %s can't be opened.\n", infilename);
-	exit(1);
+    if((infile=fopen(infilename,"r"))==NULL)
+	{
+		printf("File %s can't be opened.\n", infilename);
+		exit(1);
     }
     
+	//正经的编译器从这里开始
     err=0;
     cc=0; cx=0; ll=0; ch=' '; kk=al; getsym();
     lev=0; tx=0;

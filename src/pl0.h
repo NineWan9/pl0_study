@@ -70,12 +70,12 @@ long ll;               // line length
 long kk, err;
 long cx;               // code allocation index
 
-char line[81];
+char line[81];         // a line of code - 一条代码语句
 char a[al+1];
 instruction code[cxmax+1];
 char word[norw][al+1];
 unsigned long wsym[norw];
-unsigned long ssym[256];
+unsigned long ssym[256];  //符号数组，按照符号的ASCII码作为数组下标
 
 char mnemonic[8][3+1];
 unsigned long declbegsys, statbegsys, facbegsys;
@@ -88,8 +88,8 @@ struct{
     long addr;
 }table[txmax+1];
 
-char infilename[80];
-FILE* infile;
+char infilename[80];  // input file name
+FILE* infile;  //Input file descriptor
 
 // the following variables for block
 long dx;		// data allocation index
