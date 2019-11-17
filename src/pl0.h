@@ -8,7 +8,7 @@
 #define levmax     3              // maximum depth of block nesting
 #define cxmax      2000           // size of code array
 
-#define nul	   0x1
+#define nul	       0x1
 #define ident      0x2
 #define number     0x4
 #define plus       0x8
@@ -63,17 +63,17 @@ typedef struct{
 
 char ch;               // last character read
 unsigned long sym;     // last symbol read
-char id[al+1];         // last identifier read
+char id[al+1];         // last identifier read - 上一次获取的标识符
 long num;              // last number read
 long cc;               // character count
 long ll;               // line length
-long kk, err;
+long kk, err;          //
 long cx;               // code allocation index
 
 char line[81];         // a line of code - 一条代码语句
-char a[al+1];
+char a[al+1];          // 标识符（identifiers）数组
 instruction code[cxmax+1];
-char word[norw][al+1];
+char word[norw][al+1];   //保留字数组（reserved words）
 unsigned long wsym[norw];
 unsigned long ssym[256];  //符号数组，按照符号的ASCII码作为数组下标
 

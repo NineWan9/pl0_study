@@ -16,7 +16,10 @@ void error(long n){
 
 //从输入文件中获取下一个字符
 void getch() {
-	//cc与ll不相等是什么情况？？？
+	//cc与ll相等的情况：这一行第一次获取时，将一行中的代码放置到line数组当中，此处，line数组相当于缓存
+	//cc与ll不相等的情况：这个函数在第一遍执行完之后，只是将一行代码缓存到line数组当中，真正返回的信息只是ch全局变量
+	//                  相当于返回一个字符，所以还需要获取这一行后面的字符，此时，就跳过这个判断，不用重新读取文件，
+	//                  直接从line缓冲区中获取即可
     if(cc==ll){
 		//feof是检测流上的文件结束符，如果文件结束，则返回非0值，否则返回0
 		//（即，文件结束：返回非0值，文件未结束，返回0值）
@@ -43,6 +46,7 @@ void getch() {
     }
 	//只有当cc!=ll的时候，cc=cc+1才有意义，否则cc在循环中会被重置为0，这里永远是1，没有意义
 	//如果一行代码成功获取，ch就是line中的第一个元素
+	//如果再一次进入这个文件，ch从line缓冲区中获取下一个元素即可
     cc=cc+1; ch=line[cc];
 }
 
@@ -50,6 +54,7 @@ void getch() {
 void getsym(){
     long i,j,k;
 
+	//这里大概可能也许是从文件中提取出一行代码
     while(ch==' '||ch=='\t')
 	{
 		getch();
@@ -61,23 +66,30 @@ void getsym(){
 		do{
 			if(k<al)
 			{
+				//话说这里应该判断a数组是否超出界限了啊，这不是典型的缓冲区溢出嘛！
 				a[k]=ch; k=k+1;
 			}
-			getch();
-		}while(isalpha(ch)||isdigit(ch));
+			getch();  //获取下一个字符
+		}while(isalpha(ch)||isdigit(ch));  //如果继续是字符或者数字，说明这还是标识符，所以继续
+		
+		//kk有一个初始化，但是后续的kk是如何来的？？？
 		if(k>=kk)
 		{
 			kk=k;
 		}
-		else
+		else  
 		{
 			do{
+				//重新定义kk
+				//补足a数组标识符后续位置
 				kk=kk-1; a[kk]=' ';
 			}while(k<kk);
 		}
+		//将a中存储的标识符存放到id数组当中
 		strcpy(id,a); i=0; j=norw-1;
 		do{
 			k=(i+j)/2;
+
 			if(strcmp(id,word[k])<=0)
 			{
 				j=k-1;
@@ -597,6 +609,7 @@ main(){
 	{
 		ssym[i]=nul;
     }
+	//初始化保留字数组
     strcpy(word[0],  "begin     ");
     strcpy(word[1],  "call      ");
     strcpy(word[2],  "const     ");
