@@ -72,7 +72,7 @@ void getsym(){
 			getch();  //获取下一个字符
 		}while(isalpha(ch)||isdigit(ch));  //如果继续是字符或者数字，说明这还是标识符，所以继续
 		
-		//kk有一个初始化，但是后续的kk是如何来的？？？
+		//TODO:kk有一个初始化，但是后续的kk是如何来的？？？
 		if(k>=kk)
 		{
 			kk=k;
@@ -86,10 +86,18 @@ void getsym(){
 			}while(k<kk);
 		}
 		//将a中存储的标识符存放到id数组当中
-		strcpy(id,a); i=0; j=norw-1;
+		strcpy(id,a); 
+
+		//以下是折半查找法，查找获取的字符串是否有关键字与之对应，即获取的字符串是否是保留的关键字
+		//因为关键字数组word，是按照首字母顺序排序，所以这里可以使用折半查找法
+		//这里norw-1是数组下标的最大值
+		i=0; j=norw-1;
 		do{
+			//k是当前查找的下标，最终如果找到，word数组下标保存在k中
 			k=(i+j)/2;
 
+			//strcmp用于比较两个字符串，将两个字符串从左向右逐个字符相比（按照ASCII值大小比较），直到出现不同的字符或者'\0'为止
+			//基本形式为strcmp(str1, str2);如果str1=str2，则返回零；若str1<str2，则返回负数；若str1>str2，则返回正数
 			if(strcmp(id,word[k])<=0)
 			{
 				j=k-1;
@@ -99,23 +107,32 @@ void getsym(){
 				i=k+1;
 			}
 		}while(i<=j);
-		if(i-1>j)
+
+		//确定当前获取的符号到底是什么 - 关键字或者是标识符
+		if(i-1>j)  //符号是关键字
 		{
 			sym=wsym[k];
 		}
-		else
+		else  //符号是标识符
 		{
 			sym=ident;
 		}
     }
 	else if (isdigit(ch)) // number
 	{
-		k=0; num=0; sym=number;
+		k=0; num=0; 
+		//确定当前的符号是数字
+		sym=number;
+
+		//将字符表示的数字转换成十进制数字
 		do
 		{
 			num=num*10+(ch-'0');
-			k=k+1; getch();
+			k=k+1; 
+			getch();
 		}while(isdigit(ch));
+
+		//如果十进制表示的位数大于最大限制，则报错
 		if(k>nmax)
 		{
 			error(31);
@@ -438,7 +455,9 @@ void statement(unsigned long fsys){
     }
     test(fsys,0,19);
 }
-			
+
+//语法分析
+//TODO:是否还有语义分析的作用？？？
 void block(unsigned long fsys){
     long tx0;		// initial table index
     long cx0; 		// initial code index
@@ -609,7 +628,7 @@ main(){
 	{
 		ssym[i]=nul;
     }
-	//初始化保留字数组
+	//初始化保留字数组 - 必须注意，这里的数组是按照首字母的ASCII码排序！
     strcpy(word[0],  "begin     ");
     strcpy(word[1],  "call      ");
     strcpy(word[2],  "const     ");
@@ -621,6 +640,7 @@ main(){
     strcpy(word[8],  "then      ");
     strcpy(word[9],  "var       ");
     strcpy(word[10], "while     ");
+	//初始化十六进制表示的保留字 - wsym数组与word数组中的元素一一对应，只不过wsym中的数据是数字表示
     wsym[0]=beginsym;
     wsym[1]=callsym;
     wsym[2]=constsym;
@@ -632,6 +652,7 @@ main(){
     wsym[8]=thensym;
     wsym[9]=varsym;
     wsym[10]=whilesym;
+
     ssym['+']=plus;
     ssym['-']=minus;
     ssym['*']=times;
@@ -665,10 +686,13 @@ main(){
     }
     
 	//正经的编译器从这里开始
+	//pl0采用一遍编译，这里只取出一条语句，语法分析，紧接着语义分析，然后再取出下一条语句，语法分析、语义分析
     err=0;
-    cc=0; cx=0; ll=0; ch=' '; kk=al; getsym();
+    cc=0; cx=0; ll=0; ch=' '; kk=al; 
+	getsym();  //获取语句，词法分析
     lev=0; tx=0;
-    block(declbegsys|statbegsys|period);
+    block(declbegsys|statbegsys|period);  //语法分析
+
     if(sym!=period){
 	error(9);
     }

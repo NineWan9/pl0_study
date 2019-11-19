@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#define norw       11             // no. of reserved words
+#define norw       11             // no. of reserved words - 保留字的个数
 #define txmax      100            // length of identifier table
-#define nmax       14             // max. no. of digits in numbers
+#define nmax       14             // max. no. of digits in numbers  十进制表示的数字的最大位数
 #define al         10             // length of identifiers
 #define amax       2047           // maximum address
 #define levmax     3              // maximum depth of block nesting
@@ -62,7 +62,7 @@ typedef struct{
     jpc 0, a : jump conditional to a       */
 
 char ch;               // last character read
-unsigned long sym;     // last symbol read
+unsigned long sym;     // last symbol read  上一次获取的符号是什么类型（具体的哪一个关键字、标识符、数字等）
 char id[al+1];         // last identifier read - 上一次获取的标识符
 long num;              // last number read
 long cc;               // character count
