@@ -50,7 +50,7 @@ void getch() {
     cc=cc+1; ch=line[cc];
 }
 
-//get symbol - 我猜这是词法分析
+//get symbol - 词法分析
 void getsym(){
     long i,j,k;
 
@@ -140,37 +140,37 @@ void getsym(){
     }
 	else if(ch==':')
 	{
-		getch();
-		if (ch == '='){
-			sym = becomes; getch();
+		getch();  //获取下一个字符
+		if (ch == '='){  
+			sym = becomes; getch();  //如果是符号“:=”，说明这是赋值运算符
 		}
 		else{
-			sym = nul;
+			sym = nul;  //如果符号不是":="，说明这里只是一个单独的":"符号，这个符号代表空值
 		}
     }
 	else if(ch=='<')
 	{
 		getch();
 		if(ch=='='){
-			sym=leq; getch();
+			sym=leq; getch();  //<=  小于等于
 		}else if(ch=='>'){
-			sym=neq; getch();
+			sym=neq; getch();  //<> 不等于
 		}else{
-			sym=lss;
+			sym=lss;  //<  小于
 		}
     }
 	else if(ch=='>')
 	{
 		getch();
 		if(ch=='='){
-			sym=geq; getch();
+			sym=geq; getch();  //>=  大于等于
 		}else{
-			sym=gtr;
+			sym=gtr;  //>  大于
 		}
     }
 	else
 	{
-		sym=ssym[(unsigned char)ch]; getch();
+		sym=ssym[(unsigned char)ch]; getch();  //ssym是符号数组，从当中获取一个符号
     }
 }
 
@@ -652,7 +652,7 @@ main(){
     wsym[8]=thensym;
     wsym[9]=varsym;
     wsym[10]=whilesym;
-
+	//符号
     ssym['+']=plus;
     ssym['-']=minus;
     ssym['*']=times;
@@ -663,6 +663,7 @@ main(){
     ssym[',']=comma;
     ssym['.']=period;
     ssym[';']=semicolon;
+
     strcpy(mnemonic[lit],"lit");
     strcpy(mnemonic[opr],"opr");
     strcpy(mnemonic[lod],"lod");
@@ -689,7 +690,9 @@ main(){
 	//pl0采用一遍编译，这里只取出一条语句，语法分析，紧接着语义分析，然后再取出下一条语句，语法分析、语义分析
     err=0;
     cc=0; cx=0; ll=0; ch=' '; kk=al; 
-	getsym();  //获取语句，词法分析
+	//获取语句，词法分析 - 这里只取出一行当中最开始的单词（标识符、关键字、变量名等），这一行当中剩下的部分由下面的block进行分析
+	//getsym本身是词法分析没有错，但是这里只是取出一个词进行分析，剩下的处理都放到block当中完成
+	getsym();  
     lev=0; tx=0;
     block(declbegsys|statbegsys|period);  //语法分析
 
